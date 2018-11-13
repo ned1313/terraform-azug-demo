@@ -46,22 +46,23 @@ module "loadbalancer" {
   }
 }
 
-module "vmss-cloudinit" {
-  source                                 = "Azure/vmss-cloudinit/azurerm"
-  resource_group_name                    = "${local.resource_group}"
-  cloudconfig_file                       = "${path.module}/cloudconfig.tpl"
-  location                               = "${var.arm_region}"
-  vm_size                                = "Standard_DS2_v2"
-  admin_username                         = "azureuser"
-  admin_password                         = "ComplexPassword"
-  ssh_key                                = "~/.ssh/id_rsa.pub"
-  nb_instance                            = 2
-  vm_os_simple                           = "CoreOS"
-  vnet_subnet_id                         = "${data.terraform_remote_state.2-demo.subnet_1}"
-  load_balancer_backend_address_pool_ids = "${module.loadbalancer.azurerm_lb_backend_address_pool_id}"
+module "computegroup" {
+    source              = "Azure/computegroup/azurerm"
+    resource_group_name = "${local.resource_group}"
+    location            = "${var.arm_region}"
+    vm_size             = "Standard_A0"
+    admin_username      = "azureuser"
+    admin_password      = "ComplexPassword"
+    ssh_key             = "~/.ssh/id_rsa.pub"
+    nb_instance         = 2
+    vm_os_simple        = "UbuntuServer"
+    vnet_subnet_id      = "${data.terraform_remote_state.2-demo.subnet_1}"
+    load_balancer_backend_address_pool_ids = "${module.loadbalancer.azurerm_lb_backend_address_pool_id}"
+    cmd_extension       = "sudo apt-get -y install nginx"
+    tags                = {
+                            environment = "dev"
+                            costcenter  = "it"
+                          }
 }
 
-output "vmss_id" {
-  value = "${module.vmss-cloudinit.vmss_id}"
-}
 
