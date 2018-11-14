@@ -19,6 +19,9 @@ data "terraform_remote_state" "2-demo" {
         storage_account_name  = "azug11142018remotestate"
         container_name        = "azug11142018-remotestate-demos"
         key                   = "2-demo.state"
+        resource_group_name = "azug11142018-setup"
+        arm_client_id = "${var.arm_appId}"
+        arm_client_secret = "${var.arm_password}"
     }
 }
 
@@ -53,7 +56,7 @@ module "computegroup" {
     vm_size             = "Standard_A0"
     admin_username      = "azureuser"
     admin_password      = "ComplexPassword"
-    ssh_key             = "~/.ssh/id_rsa.pub"
+    ssh_key             = "~/.ssh/nbellavancePublic.pem"
     nb_instance         = 2
     vm_os_simple        = "UbuntuServer"
     vnet_subnet_id      = "${data.terraform_remote_state.2-demo.subnet_1}"
