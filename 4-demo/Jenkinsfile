@@ -21,7 +21,7 @@ pipeline {
             steps {
                 dir('4-demo'){
                     sh 'terraform --version'
-                    sh "terraform init"
+                    sh "terraform init -backend-config='arm_client_id=$ARM_CLIENT_ID' -backend-config='arm_client_secret=$ARM_CLIENT_SECRET'"
                     sh "echo \$PWD"
                     sh "whoami"
                 }
