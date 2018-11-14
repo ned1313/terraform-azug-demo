@@ -1,8 +1,9 @@
 terraform {
-  backend "s3" {
-    key = "4-demo-network.state"
-    region = "us-east-1"
-    bucket = "vpcdemo10112018-remotestate"
-    dynamodb_table = "vpcdemo10112018-tfstatelock"
+  backend "azurerm" {
+    storage_account_name = "azug11142018remotestate"
+    container_name       = "azug11142018-remotestate-demos"
+    key                  = "4-demo.state"
+
+    resource_group_name = "azug11142018-setup"
   }
 }

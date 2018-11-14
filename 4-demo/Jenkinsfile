@@ -1,19 +1,15 @@
 pipeline {
     agent any
     tools {
-        "org.jenkinsci.plugins.terraform.TerraformInstallation" "terraform-0.11.8"
+        "org.jenkinsci.plugins.terraform.TerraformInstallation" "terraform-0.11.10"
     }
     parameters {
         string(name: 'WORKSPACE', defaultValue: 'development', description:'worspace to use in Terraform')
     }
     environment {
-        TF_HOME = tool('terraform-0.11.8')
+        TF_HOME = tool('terraform-0.11.10')
         TF_IN_AUTOMATION = "true"
         PATH = "$TF_HOME:$PATH"
-        DYNAMODB_STATELOCK = "vpcdemo10112018-tfstatelock"
-        NETWORKING_BUCKET = "vpcdemo10112018-remotestate"
-        NETWORKING_ACCESS_KEY = credentials('aws_access_key')
-        NETWORKING_SECRET_KEY = credentials('aws_secret_key')
         ARM_SUBSCRIPTION_ID = credentials('arm_subscription')
         ARM_TENANT_ID = credentials('arm_tenant_id')
         VAR_FILE_NAME = "terraform.jenkins"
@@ -23,9 +19,7 @@ pipeline {
             steps {
                 dir('4-demo'){
                     sh 'terraform --version'
-                    sh "terraform init -input=false \
-                     --backend-config='dynamodb_table=$DYNAMODB_STATELOCK' --backend-config='bucket=$NETWORKING_BUCKET' \
-                     --backend-config='access_key=$NETWORKING_ACCESS_KEY' --backend-config='secret_key=$NETWORKING_SECRET_KEY'"
+                    sh "terraform init"
                     sh "echo \$PWD"
                     sh "whoami"
                 }
@@ -40,8 +34,7 @@ pipeline {
                         } catch (err) {
                             sh "terraform workspace select ${params.WORKSPACE}"
                         }
-                        sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
-                        -var-file=$VAR_FILE_NAME -out terraform-networking.tfplan;echo \$? > status"
+                        sh "terraform plan -var-file=$VAR_FILE_NAME -out terraform-networking.tfplan;echo \$? > status"
                         stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                     }
                 }
@@ -57,8 +50,7 @@ pipeline {
                     } catch (err) {
                         apply = false
                         dir('4-demo'){
-                            sh "terraform destroy -var 'aws_access_key=$NETWORKING_ACCESS_KEY' \
-                             -var-file=$VAR_FILE_NAME -var 'aws_secret_key=$NETWORKING_SECRET_KEY' -force"
+                            sh "terraform destroy -var-file=$VAR_FILE_NAME -force"
                         }
                         currentBuild.result = 'UNSTABLE'
                     }
