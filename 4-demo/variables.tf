@@ -8,7 +8,7 @@ variable "arm_region" {
 }
 
 variable "arm_resource_group_name" {
-    default = "vdc10112018"
+    default = "azug11142018"
 }
 variable "arm_network_address_space" {
   default = "10.2.0.0/16"

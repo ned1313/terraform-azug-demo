@@ -5,7 +5,7 @@ data "template_file" "arm_cidrsubnet" {
 
   vars {
     vpc_cidr      = "${var.arm_network_address_space}"
-    current_count = "${count.index*2}"
+    current_count = "${count.index}"
   }
 }
 
@@ -15,6 +15,6 @@ data "template_file" "arm_cidrsubnet_names" {
   template = "subnet-$${current_count}"
 
   vars {
-    current_count = "${count.index*2}"
+    current_count = "${count.index}"
   }
 }
